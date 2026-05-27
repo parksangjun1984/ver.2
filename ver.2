@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>하자판정 도우미 | 현대엘앤씨</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#fff;color:#111827;min-height:100vh;padding-bottom:60px;}
+.header{background:#1A1A1A;padding:9px 16px;position:sticky;top:0;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.header-inner{max-width:600px;margin:0 auto;display:flex;align-items:center;}
+.logo-box{display:flex;align-items:center;gap:0;}
+.logo-hyun{background:#2BA99B;padding:4px 7px;display:flex;align-items:center;}
+.logo-hyun-txt{font-size:11px;font-weight:900;color:#fff;letter-spacing:2px;font-family:'Arial Black','Arial',sans-serif;}
+.logo-d{background:#1A1A1A;padding:4px 5px;display:flex;align-items:center;border-left:1px solid #444;border-right:1px solid #444;}
+.logo-d-txt{font-size:11px;font-weight:900;color:#fff;letter-spacing:0;font-family:'Arial Black','Arial',sans-serif;}
+.logo-ai{background:#E8A020;padding:4px 7px;display:flex;align-items:center;}
+.logo-ai-txt{font-size:11px;font-weight:900;color:#fff;letter-spacing:2px;font-family:'Arial Black','Arial',sans-serif;}
+.logo-lc{margin-left:7px;font-size:11px;font-weight:700;color:#2BA99B;letter-spacing:1.5px;}
+.header-sub{margin-left:auto;font-size:11px;color:rgba(255,255,255,.55);}
+.wrap{max-width:600px;margin:0 auto;padding:18px 16px 0;}
+.screen{display:none;}.screen.on{display:block;}
+.hero{background:#2BA99B;border-radius:14px;padding:24px 20px;color:#fff;margin-bottom:14px;}
+.hero-tag{font-size:10px;opacity:.7;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.hero-title{font-size:20px;font-weight:800;line-height:1.35;margin-bottom:8px;}
+.hero-desc{font-size:13px;opacity:.8;line-height:1.65;}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.chip{padding:5px 11px;background:#e1f5f0;border:1px solid #a3d9cc;border-radius:100px;font-size:12px;color:#085041;font-weight:500;}
+.card{background:#fff;border-radius:14px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:14px;border:1px solid #d5ede8;}
+.card-lbl{font-size:10px;font-weight:700;letter-spacing:1.2px;color:#2BA99B;text-transform:uppercase;margin-bottom:8px;}
+.card-q{font-size:17px;font-weight:800;line-height:1.4;margin-bottom:16px;}
+.stepbar{display:flex;align-items:center;gap:5px;margin-bottom:14px;}
+.dot{height:7px;border-radius:4px;transition:all .25s;background:#e0e0e0;}
+.dot.act{width:20px;background:#2BA99B;}
+.dot.idle{width:7px;border-radius:50%;}
+.dot.done{width:7px;border-radius:50%;background:#2BA99B;opacity:.35;}
+.step-lbl{margin-left:auto;font-size:11px;color:#6b7280;font-family:monospace;}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.pcard{padding:16px 10px;border:1.5px solid #e5e9f4;border-radius:12px;background:#fff;text-align:center;cursor:pointer;}
+.pcard:active{background:#f0faf5;border-color:#2BA99B;}
+.p-emoji{font-size:26px;margin-bottom:6px;}
+.p-name{font-size:14px;font-weight:700;}
+.p-sub{font-size:11px;color:#6b7280;margin-top:2px;}
+.opt{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid #e5e9f4;border-radius:12px;background:#fff;margin-bottom:8px;cursor:pointer;}
+.opt:active{background:#f0faf5;border-color:#2BA99B;}
+.opt-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0;}
+.opt-text{font-size:15px;font-weight:600;line-height:1.4;}
+.opt-sub{font-size:12px;color:#6b7280;margin-top:2px;}
+/* 체크리스트 */
+.ck-sec{margin-bottom:18px;}
+.ck-title{font-size:14px;font-weight:700;color:#111827;margin-bottom:6px;padding:10px 14px;background:#f0faf5;border-radius:10px;border-left:3px solid #2BA99B;line-height:1.5;}
+.ck-title.unanswered{background:#fff5f5;border-left-color:#ef4444;}
+.ck-hint{font-size:11px;color:#6b7280;margin-top:4px;font-weight:400;}
+.ck-warrant{display:inline-block;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;background:#fff8e1;color:#b45309;margin-left:6px;vertical-align:middle;}
+.yn-row{display:flex;gap:8px;margin-top:8px;}
+.yn-btn{flex:1;padding:11px 8px;border-radius:10px;border:1.5px solid #e5e9f4;font-size:13px;font-weight:700;cursor:pointer;text-align:center;background:#fff;line-height:1.3;}
+.yn-btn.sel-y{background:#2BA99B;border-color:#2BA99B;color:#fff;}
+.yn-btn.sel-n{background:#ef4444;border-color:#ef4444;color:#fff;}
+/* 결과 */
+.result-box{border-radius:14px;padding:20px 18px;margin-bottom:14px;border:1.5px solid;}
+.type-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-size:13px;font-weight:700;color:#fff;margin-bottom:10px;}
+.verdict-chip{display:block;padding:12px 16px;border-radius:10px;font-size:15px;font-weight:700;margin-bottom:14px;text-align:center;}
+.warranty-box{padding:10px 14px;border-radius:10px;background:#fff8e1;border:1px solid #fde68a;margin-bottom:14px;font-size:13px;color:#92400e;}
+.r-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;opacity:.55;}
+.r-action{background:rgba(0,0,0,.05);border-radius:10px;padding:14px 15px;font-size:14px;line-height:1.7;margin-bottom:14px;}
+.chk-list{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
+.chk-item{display:flex;gap:9px;font-size:14px;line-height:1.5;align-items:flex-start;}
+/* 복사 버튼 */
+.copy-btn{width:100%;padding:13px;border-radius:12px;border:1.5px solid #2BA99B;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:#fff;color:#2BA99B;margin-top:8px;}
+.copy-btn:active{background:#f0faf5;}
+/* 기타 */
+.btn-row{display:flex;gap:8px;margin-top:6px;}
+.btn{flex:1;padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn:active{opacity:.85;}
+.btn-pri{background:#2BA99B;color:#fff;}
+.btn-sec{background:#e5e9f4;color:#111827;}
+.btn-judge{width:100%;padding:15px;border-radius:12px;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:#2BA99B;color:#fff;margin-top:16px;}
+.back{background:none;border:none;font-size:13px;color:#6b7280;cursor:pointer;margin-bottom:14px;padding:4px 0;font-family:inherit;display:block;}
+.disc{font-size:11px;color:#9ca3af;text-align:center;padding:10px 8px;line-height:1.7;}
+.leg{display:flex;gap:9px;font-size:14px;line-height:1.6;margin-bottom:8px;align-items:flex-start;}
+.err-msg{color:#ef4444;font-size:13px;text-align:center;padding:8px 0;display:none;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-box">
+      <div class="logo-hyun"><span class="logo-hyun-txt">HYUN</span></div>
+      <div class="logo-d"><span class="logo-d-txt">D</span></div>
+      <div class="logo-ai"><span class="logo-ai-txt">AI</span></div>
+      <span class="logo-lc">L &amp; C</span>
+    </div>
+    <span class="header-sub">품질전략팀</span>
+  </div>
+</div>
+<div class="wrap">
+
+  <!-- s0 인트로 -->
+  <div id="s0" class="screen on">
+    <div class="hero">
+      <div class="hero-tag">품질전략팀 · CS 현장 도구</div>
+      <div class="hero-title">현장에서 바로<br>하자유형 판정하기</div>
+      <div class="hero-desc">점검 항목 순서대로 체크 → AS 대상 여부 즉시 확인</div>
+    </div>
+    <div class="chips">
+      <span class="chip">🪟 완성창</span><span class="chip">🪵 마루</span><span class="chip">📜 장판</span>
+      <span class="chip">🟫 PVC타일</span><span class="chip">🚪 중문</span><span class="chip">🖼️ 벽지</span>
+      <span class="chip">🪨 인테리어스톤</span><span class="chip">🎨 장식자재</span>
+    </div>
+    <div class="card">
+      <div class="card-lbl">하자유형 기준</div>
+      <div class="leg"><span style="color:#0ea5e9;flex-shrink:0;padding-top:3px">●</span><div><strong>제품성</strong> — 제조·품질 불량 → AS 의무</div></div>
+      <div class="leg"><span style="color:#10b981;flex-shrink:0;padding-top:3px">●</span><div><strong>현장성</strong> — 환경·관리 불량 → AS 기각</div></div>
+      <div class="leg"><span style="color:#f59e0b;flex-shrink:0;padding-top:3px">●</span><div><strong>시공성</strong> — 설치·시공 불량 → AS 기각</div></div>
+      <div class="leg"><span style="color:#8b5cf6;flex-shrink:0;padding-top:3px">●</span><div><strong>가공성</strong> — 재단·가공 불량 → AS 의무(가공사)</div></div>
+      <div class="leg"><span style="color:#ef4444;flex-shrink:0;padding-top:3px">●</span><div><strong>사용성/민원성</strong> — 사용·관리 불량 → AS 기각</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-pri" onclick="go('s1')">▶ 판정 시작하기</button>
+    </div>
+  </div>
+
+  <!-- s1 품목 선택 -->
+  <div id="s1" class="screen">
+    <button class="back" onclick="go('s0')">← 처음으로</button>
+    <div class="stepbar"><div class="dot act"></div><div class="dot idle"></div><div class="dot idle"></div><span class="step-lbl">STEP 1 / 3</span></div>
+    <div class="card">
+      <div class="card-lbl">Step 1</div>
+      <div class="card-q">어떤 제품에서<br>하자가 발생했나요?</div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+  </div>
+
+  <!-- s2 증상 선택 -->
+  <div id="s2" class="screen">
+    <button class="back" onclick="go('s1')">← 품목 다시 선택</button>
+    <div class="stepbar"><div class="dot done"></div><div class="dot act"></div><div class="dot idle"></div><span class="step-lbl">STEP 2 / 3</span></div>
+    <div class="card">
+      <div class="card-lbl" id="s2lbl">Step 2</div>
+      <div class="card-q">어떤 증상이<br>발생했나요?</div>
+      <div id="s2list"></div>
+    </div>
+  </div>
+
+  <!-- s3 체크리스트 -->
+  <div id="s3" class="screen">
+    <button class="back" onclick="go('s2')">← 증상 다시 선택</button>
+    <div class="stepbar"><div class="dot done"></div><div class="dot done"></div><div class="dot act"></div><span class="step-lbl">STEP 3 / 3</span></div>
+    <div class="card">
+      <div class="card-lbl">Step 3 · 현장 점검 체크</div>
+      <div class="card-q" id="s3title">아래 항목을 순서대로 확인하세요</div>
+      <div id="s3list"></div>
+      <div class="err-msg" id="errmsg">⚠ 답변하지 않은 항목이 있습니다. 위로 스크롤해서 확인하세요.</div>
+      <button class="btn-judge" onclick="judgeResult()">✓ 판정하기</button>
+    </div>
+  </div>
+
+  <!-- s4 결과 -->
+  <div id="s4" class="screen">
+    <button class="back" onclick="go('s0')">← 처음부터 다시</button>
+    <div class="stepbar"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><span class="step-lbl">판정 완료</span></div>
+    <div id="s4body"></div>
+    <button class="copy-btn" onclick="copyResult()">📋 결과 텍스트 복사</button>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn btn-sec" onclick="go('s1')">다른 품목 판정</button>
+      <button class="btn btn-pri" onclick="go('s0')">처음으로</button>
+    </div>
+    <div class="disc">※ 본 판정 결과는 현장 참고용이며, 최종 판단은 품질전략팀 확인이 필요합니다.<br>복합성·원인 불명 시 → 유관부서 2차 현장 동행실사 후 결정</div>
+  </div>
+</div>
+
+<script>
+var TM={
+  product:     {lbl:'제품성',      color:'#0ea5e9',bg:'#e0f4ff',ico:'🔵',verd:'AS 의무 (당사 처리)',   vbg:'#dcfce7',vco:'#14532d'},
+  field:       {lbl:'현장성',      color:'#10b981',bg:'#d1fae5',ico:'🟢',verd:'AS 기각',              vbg:'#fef3c7',vco:'#78350f'},
+  construction:{lbl:'시공성',      color:'#f59e0b',bg:'#fef3c7',ico:'🟡',verd:'AS 기각 → 시공사 귀책',vbg:'#fef3c7',vco:'#78350f'},
+  process:     {lbl:'가공성',      color:'#8b5cf6',bg:'#ede9fe',ico:'🟣',verd:'AS 의무 (가공업체)',    vbg:'#ede9fe',vco:'#5b21b6'},
+  civil:       {lbl:'사용성/민원성',color:'#ef4444',bg:'#fee2e2',ico:'🔴',verd:'AS 기각 (고객 귀책)',  vbg:'#fee2e2',vco:'#991b1b'}
+};
+
+var PRODUCTS=[
+  {k:'window',    e:'🪟',n:'완성창',      s:'완성창 · 터닝도어'},
+  {k:'floor_wood',e:'🪵',n:'마루',        s:'합판마루 · MDF마루 · SPC마루'},
+  {k:'floor_viny',e:'📜',n:'장판',        s:'참다움 · 더채움 · 아티움 · 소리지움'},
+  {k:'tile',      e:'🟫',n:'PVC타일',     s:'PVC 바닥 타일'},
+  {k:'jungmun',   e:'🚪',n:'중문',        s:'슬라이딩 중문'},
+  {k:'wallpaper', e:'🖼️',n:'벽지',        s:'큐피드(실크) · 큐티에(합지)'},
+  {k:'stone',     e:'🪨',n:'인테리어스톤',s:'주방상판 · 욕실'},
+  {k:'deco',      e:'🎨',n:'장식자재',    s:'인테리어필름 · 데코시트'}
+];
+
+var SYMPTOMS={
+  window:[
+    {ico:'💧',txt:'결로 / 성에',        sub:'유리 내부 또는 표면'},
+    {ico:'💦',txt:'누수 / 바람 유입',    sub:'틈 · 코킹 · 기밀재 문제'},
+    {ico:'🔄',txt:'개폐 불량',           sub:'안 열림 · 뻑뻑함 · 쳐짐'},
+    {ico:'🦟',txt:'방충망 불량',         sub:'핸들탈락 · 틈벌어짐 · 부식'},
+    {ico:'🔧',txt:'실리콘 / 코킹 불량', sub:'갈라짐 · 탈락 · 오염'},
+    {ico:'💥',txt:'유리 파손',           sub:'균열 · 자파 · 충격'},
+    {ico:'⚙️',txt:'부자재 파손',         sub:'핸들 · 호차 · 잠금장치'},
+    {ico:'🚪',txt:'터닝도어 개폐 불량',  sub:'비지정 시공 포함'}
+  ],
+  floor_wood:[
+    {ico:'🎨',txt:'이색 / 이광',        sub:'색상차이 · 광택차이'},
+    {ico:'🌑',txt:'변색',               sub:'오염 · 누수 · 직사광선'},
+    {ico:'⬆️',txt:'들뜸 / 웨이브',      sub:'바닥에서 솟아오름'},
+    {ico:'↔️',txt:'이음매 / 이음부',    sub:'벌어짐 · 터짐 · 오염'},
+    {ico:'🔲',txt:'박리',               sub:'층간 분리'},
+    {ico:'📦',txt:'운송 중 파손',        sub:'배송 · 보관 불량'}
+  ],
+  floor_viny:[
+    {ico:'🎨',txt:'이색 / 이광',        sub:'색상차이 · LOT 혼재'},
+    {ico:'🌑',txt:'변색',               sub:'오염 · 누수 · 직사광선'},
+    {ico:'🖨️',txt:'인쇄 불량',          sub:'번짐 · 누락 · 오염'},
+    {ico:'📏',txt:'단차',               sub:'높이 차이 · 평활도'},
+    {ico:'⬆️',txt:'들뜸 / 웨이브',      sub:'바닥에서 솟아오름'},
+    {ico:'↔️',txt:'이음매 / 이음부',    sub:'벌어짐 · 터짐 · 오염'},
+    {ico:'📦',txt:'운송 중 파손',        sub:'배송 · 보관 불량'}
+  ],
+  tile:[
+    {ico:'🎨',txt:'이색 / 이광',        sub:'색상차이 · LOT 혼재'},
+    {ico:'🌑',txt:'변색',               sub:'오염 · 누수 · 직사광선'},
+    {ico:'🖨️',txt:'인쇄 불량',          sub:'번짐 · 누락 · 오염'},
+    {ico:'📏',txt:'단차',               sub:'높이 차이 · 평활도'},
+    {ico:'⬆️',txt:'들뜸 / 웨이브',      sub:'바닥에서 솟아오름'},
+    {ico:'↔️',txt:'이음매 / 이음부',    sub:'벌어짐 · 터짐 · 오염'}
+  ],
+  jungmun:[
+    {ico:'🔄',txt:'개폐 불량',           sub:'와이어 · 롤러 · 댐퍼'},
+    {ico:'📐',txt:'수평 / 수직 불량',    sub:'레일 · 문틀 처짐'},
+    {ico:'💥',txt:'유리 파손',           sub:'충격 · 자파'},
+    {ico:'🔧',txt:'부자재 불량 (핸들)',  sub:'도장탈락 · 파손'}
+  ],
+  wallpaper:[
+    {ico:'⬆️',txt:'기포 / 들뜸',        sub:'풀 불량 · 습기'},
+    {ico:'🌑',txt:'변색 / 인쇄 불량',   sub:'오염 · 제조 불량'},
+    {ico:'✂️',txt:'찢김 / 훼손',        sub:'외력 · 사용 중 손상'}
+  ],
+  stone:[
+    {ico:'🎨',txt:'이색 / 이광',        sub:'광택차이 · LOT 혼재'},
+    {ico:'📏',txt:'단차',               sub:'연결부 · 하부장 불량'},
+    {ico:'🔍',txt:'표면 불량',          sub:'핀홀 · 이물질 · 블로치'},
+    {ico:'🌑',txt:'탈색 / 변색',        sub:'열원 · 화학물질 · UV'},
+    {ico:'💥',txt:'크랙 (균열)',         sub:'하부지지 불량 · 제품 불량'}
+  ],
+  deco:[
+    {ico:'📌',txt:'점착 하자',          sub:'들뜸 · 박리 · 기포'},
+    {ico:'🌀',txt:'터널링',             sub:'이형지 들뜸'},
+    {ico:'🔍',txt:'외관 하자',          sub:'이물질 · 줄자국 · UV변색'},
+    {ico:'💥',txt:'파손',              sub:'재단 시공 불량'},
+    {ico:'📐',txt:'수축',              sub:'시공 전 수축 · 열 수축'},
+    {ico:'🎨',txt:'이색',              sub:'LOT 차이 · 조명 차이'},
+    {ico:'🔲',txt:'엠보스 풀림',        sub:'표면 질감 변형'},
+    {ico:'📊',txt:'평활도 불량',        sub:'보관 불량 · 제조 불량'},
+    {ico:'🛡️',txt:'보호랩 불량',        sub:'점착제 전이 · 강도 불량'}
+  ]
+};
+
+// ── 체크리스트 데이터 구조 ──
+// 각 step: {q, hint, warranty, answers:[{label, type, as, action, checks}]}
+// type=null이면 다음 step으로 진행
+// 모든 step을 통과해야 결과 도달
+
+var CHECKS={
+
+// ════════════════════════════════
+// 완성창
+// ════════════════════════════════
+'window_결로 / 성에':[
+  {q:'복층유리 내부(유리 사이)에 결로·성에가 발생했나요?',
+   hint:'손으로 닦아도 없어지지 않으면 내부 결로',
+   warranty:'유리 1년',
+   answers:[
+     {label:'예 — 유리 사이 (내부)',
+      type:'product', as:'의무',
+      action:'복층유리 기밀 파손으로 인한 제품성 하자입니다.\n→ 유리 교체 진행 (1년 이내 무상)',
+      checks:['복층유리 사이 수분 맺힘 사진 촬영','습기 유입 추정 부위 확인','타 창짝 동일 증상 여부 확인','제조일 및 설치일 확인']},
+     {label:'아니오 — 표면·실내 결로',
+      type:'civil', as:'기각',
+      action:'실내 온습도 차이에 의한 현장성 하자입니다.\n→ 환기 개선 및 제습 방법 안내\n→ 국토교통부 결로 설명자료 제공',
+      checks:['실내 습도 측정 (60% 이상 시 현장성)','환기 빈도 확인','단열재 시공 상태 육안 확인']}
+   ]}
+],
+
+'window_누수 / 바람 유입':[
+  {q:'누수·바람 유입 부위 주변에 외벽 크렉(균열)이 있나요?',
+   hint:'벽체 균열이 있으면 건물 귀책',
+   answers:[
+     {label:'예 — 외벽 크렉 있음',
+      type:'field', as:'기각',
+      action:'외벽 크렉에 의한 현장성 누수입니다.\n→ 건물 관리 귀책 안내',
+      checks:['외벽 크렉 위치 사진 촬영','크렉과 누수 부위 연관성 확인']},
+     {label:'아니오 — 크렉 없음',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'코킹(실리콘) 누락·불연속·마감 불량이 확인되나요?',
+   hint:'벽체와 창틀 사이 코킹 상태 육안 확인',
+   warranty:'코킹·실리콘 5년',
+   answers:[
+     {label:'예 — 코킹 누락·불량',
+      type:'construction', as:'의무',
+      action:'코킹 누락·불연속 확인. 시공성 귀책입니다.\n→ 재코킹 진행 (5년 이내 무상)',
+      checks:['코킹 누락 부위 사진 촬영','불연속 구간 길이 측정','재코킹 범위 확인']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'기밀재(모헤어/풍지판) 누락 또는 마모가 확인되나요?',
+   hint:'창짝 테두리 기밀재 상태 확인',
+   warranty:'기밀재 2년',
+   answers:[
+     {label:'예 — 기밀재 누락·마모 (2년 이내)',
+      type:'product', as:'의무',
+      action:'기밀재 누락·마모 확인. 제품성 귀책입니다.\n→ 기밀재 교체 진행 (2년 이내 무상)',
+      checks:['기밀재 누락 위치 사진 촬영','전 창짝 기밀재 상태 확인']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'창틀·창짝이 변형(밴딩·뒤틀림)되어 틈이 발생했나요?',
+   hint:'프로파일 형태변형 및 코너용접 파손 여부',
+   warranty:'창틀/창짝 변형 10년',
+   answers:[
+     {label:'예 — 프로파일·코너 변형',
+      type:'product', as:'의무',
+      action:'프로파일 또는 코너용접 불량. 제품성 귀책입니다.\n→ 교체 진행 (10년 이내 무상)',
+      checks:['변형 부위 사진 촬영','변형 정도 측정','코너용접 탈락 여부 확인']},
+     {label:'아니오 — 수직/수평 불량',
+      type:'construction', as:'의무',
+      action:'창틀 수직·수평 불량으로 인한 누수. 시공성 귀책입니다.\n→ 수직·수평 재조정',
+      checks:['창틀 수직·수평도 측정 (레이저 수평기)','앙카 고정 상태 확인','배수홀 막힘 여부 확인']}
+   ]}
+],
+
+'window_개폐 불량':[
+  {q:'건축물 골조 변형(건물 침하·뒤틀림)에 의한 영향인가요?',
+   hint:'건물 전체적 변형 징후 확인',
+   answers:[
+     {label:'예 — 골조 변형 영향',
+      type:'field', as:'기각',
+      action:'건축물 골조 변형에 의한 현장성 하자입니다.\n→ 건물 관리 귀책 안내',
+      checks:['골조 변형 징후 사진 촬영','인접 세대 동일 증상 여부 확인']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'롤러(호차)·시스템창 하드웨어·잠금장치(핸들/크리센트)가 파손되었나요?',
+   hint:'부품 파손 육안 확인',
+   warranty:'롤러·하드웨어·잠금장치 5년',
+   answers:[
+     {label:'예 — 부품 파손',
+      type:'product', as:'의무',
+      action:'부품 파손 확인. 제품성 귀책입니다.\n→ 파손 부품 교체 (5년 이내 무상)\n※ 사용에 따른 정상 마모·스크래치는 제외',
+      checks:['파손 부품 사진 촬영','파손 부품 종류 및 수량 확인','교체 부품 발주']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'창틀 수직·수평 불량이 확인되나요?',
+   hint:'수평자 또는 레이저로 측정',
+   warranty:'창틀 수직/수평 불량 5년',
+   answers:[
+     {label:'예 — 수직·수평 불량',
+      type:'construction', as:'의무',
+      action:'수직·수평 불량으로 인한 개폐 불량. 시공성 귀책입니다.\n→ 수직·수평 재조정 (5년 이내)',
+      checks:['창틀 수직·수평도 측정값 기록','앙카 고정 상태 확인','재조정 가능 여부 확인']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'이물질·먼지에 의한 부자재 기능 간섭인가요?',
+   hint:'레일·롤러부 오염 여부 확인',
+   answers:[
+     {label:'예 — 이물질·먼지 간섭',
+      type:'civil', as:'기각',
+      action:'이물질·먼지에 의한 사용성 하자입니다.\n→ 오염원 제거 서비스 제공\n→ 관리 방법 안내',
+      checks:['이물질 종류 및 위치 확인','레일·롤러 청소 후 작동 재확인','관리 방법 서면 안내']},
+     {label:'아니오 — 경년 쳐짐',
+      type:'civil', as:'의무',
+      action:'시간 경과에 따른 경년 쳐짐입니다.\n→ 서비스 차원 조정 진행',
+      checks:['쳐짐 정도 측정','조정 가능 여부 확인','조정 후 작동 재확인']}
+   ]}
+],
+
+'window_터닝도어 개폐 불량':[
+  {q:'현대엘앤씨 지정 시공협력사가 설치했나요?',
+   hint:'시공 이력 및 협력사 계약서 확인',
+   answers:[
+     {label:'아니오 — 목수 등 비지정 시공',
+      type:'field', as:'기각',
+      action:'비지정 시공팀 설치 확인. 당사 보증 제외 대상입니다.\n→ 당사 시공 관리 미경유 자재는 품질보증 제외 안내',
+      checks:['시공 이력 확인 (계약서·Q-TOS)','비지정 시공 사실 서면 기록']},
+     {label:'예 — 지정 협력사 시공',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'힌지·레벨 조정 상태가 불량인가요?',
+   hint:'문짝 레벨·힌지 조정 나사 상태 확인',
+   answers:[
+     {label:'예 — 레벨·힌지 조정 불량',
+      type:'construction', as:'기각',
+      action:'설치 조정 불량. 시공성 귀책입니다.\n→ 지정 시공팀 재조정 요청\n→ 미조정 시 유상 처리',
+      checks:['레벨 불량 부위 사진 촬영','힌지 조정 나사 상태 확인','재조정 후 작동 확인']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'댐퍼·롤러·레일 등 부품 자체 불량인가요?',
+   hint:'부품 파손·변형 육안 확인',
+   answers:[
+     {label:'예 — 부품 불량',
+      type:'product', as:'의무',
+      action:'부품 불량. 제품성 귀책입니다.\n→ 해당 부품 교체 진행',
+      checks:['불량 부품 사진 촬영','부품 종류 및 교체 범위 확인']},
+     {label:'아니오 — 이물질·임의 분해',
+      type:'civil', as:'기각',
+      action:'이물질 또는 임의 분해에 의한 사용성 하자입니다.\n→ 이물질 제거 서비스\n→ 임의 분해 시 유상 처리',
+      checks:['이물질 위치 확인','임의 분해 흔적 확인','청소 후 작동 재확인']}
+   ]}
+],
+
+'window_방충망 불량':[
+  {q:'방충망 부식으로 인한 기능 저하인가요?',
+   hint:'부식 범위 및 정도 확인',
+   answers:[
+     {label:'예 — 부식',
+      type:'product', as:'의무',
+      action:'방충망 부식 확인. 제품성 귀책입니다.\n→ 방충망 교체 진행',
+      checks:['부식 범위 사진 촬영','타 창짝 동일 증상 여부 확인']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'방충망 핸들 탈락인 경우: 설치 시점이 2025년 11월 1일 이전인가요?',
+   hint:'개선품 기준일 — 이전/이후 귀책 다름',
+   answers:[
+     {label:'예 — 2025.11.01 이전 설치',
+      type:'product', as:'의무',
+      action:'개선품 이전 설치건. 제품성 귀책입니다.\n→ 개선품으로 교체 진행',
+      checks:['설치 시점 확인 (계약서·Q-TOS)','개선품 발주']},
+     {label:'아니오 — 2025.11.01 이후 설치',
+      type:'construction', as:'의무',
+      action:'개선품 이후 설치건. 시공성 귀책입니다.\n→ 시공팀 재설치 요청',
+      checks:['설치 시점 확인','시공팀 재설치 요청']}
+   ]},
+  {q:'방충망 틈벌어짐·유격이 발생했나요?',
+   hint:'방충망 밴딩 및 유격 확인',
+   answers:[
+     {label:'예 — 밴딩·유격 (시공 불량)',
+      type:'construction', as:'의무',
+      action:'방충망 밴딩·유격. 시공성 귀책입니다.\n→ 시공팀 재처리 요청',
+      checks:['유격 정도 측정','밴딩 위치 사진 촬영']},
+     {label:'아니오 — 유구봉 탈락 등',
+      type:'civil', as:'기각',
+      action:'방충망 밀림 동반 유구봉 탈락. 사용성 귀책입니다.\n→ 유상 처리 안내',
+      checks:['유구봉 탈락 형태 확인','밀림 흔적 사진 촬영']}
+   ]}
+],
+
+'window_실리콘 / 코킹 불량':[
+  {q:'코킹 미충진·누락·마감면 불량인가요?',
+   hint:'시공 상태 육안 확인',
+   warranty:'코킹·실리콘 5년',
+   answers:[
+     {label:'예 — 시공 불량',
+      type:'construction', as:'의무',
+      action:'코킹 시공 불량. 시공성 귀책입니다.\n→ 재코킹 진행',
+      checks:['누락 위치 사진 촬영','불연속 구간 확인','재코킹 범위 결정']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'외벽 균열 발생에 의한 코킹 벌어짐인가요?',
+   hint:'코킹 갈라짐 부위 외벽 크렉 확인',
+   warranty:'5년',
+   answers:[
+     {label:'예 — 외벽 균열로 인한 벌어짐',
+      type:'field', as:'의무',
+      action:'시공 이후 외벽 균열 발생으로 인한 코킹 벌어짐. 현장성 귀책이나 서비스 차원 처리합니다.\n→ 재코킹 진행',
+      checks:['외벽 균열 위치 사진 촬영','코킹 벌어짐 범위 확인']},
+     {label:'아니오 — 타공정 훼손',
+      type:'field', as:'기각',
+      action:'시공 후 타공정에 의한 코킹 훼손. 현장성 귀책입니다.\n→ Q-TOS 사진 자료 확보 후 안내\n→ 유상 처리',
+      checks:['Q-TOS 사진 자료 확보','훼손 위치·범위 확인','유상 처리 비용 안내']}
+   ]}
+],
+
+'window_유리 파손':[
+  {q:'파손 형태가 방사형이고 외부 충격 흔적이 있나요?',
+   hint:'충격 흔적·이물질·파손 패턴 확인',
+   answers:[
+     {label:'예 — 방사형, 외력 파손',
+      type:'civil', as:'기각',
+      action:'외력에 의한 파손. 사용성 귀책입니다.\n→ 유상 교체 안내',
+      checks:['파손 패턴 사진 촬영','충격 흔적·이물질 확인','고객 경위 진술 청취']},
+     {label:'아니오 — 충격 흔적 없음',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'파손 패턴이 수평 직선형이고 충격 흔적이 없나요?',
+   hint:'직선형 균열 = 제품성 자파, 방사형 = 외력',
+   answers:[
+     {label:'예 — 직선형 자파',
+      type:'product', as:'의무',
+      action:'제품성 자파 또는 열 균열 확인. 제품성 귀책입니다.\n→ 무상 교체 진행',
+      checks:['파손 패턴 사진 촬영 (직선형 확인)','동일 Lot 타 제품 확인','열 균열 가능성 확인']},
+     {label:'아니오 — 귀책 불명확',
+      type:'field', as:'기각',
+      action:'귀책처 불명확. 현장성 추정입니다.\n→ 유상 처리 안내 또는 파손 감정 의뢰 제안',
+      checks:['파손 패턴 정밀 사진 촬영','고객 경위 진술 청취','필요 시 외부 감정 의뢰 안내']}
+   ]}
+],
+
+'window_부자재 파손':[
+  {q:'사용자 조작 실수·타 용도 사용에 의한 파손인가요?',
+   hint:'정상 사용 범위 여부 판단',
+   warranty:'프로파일·핸들·방충망·호차 등 5년',
+   answers:[
+     {label:'예 — 사용자 과실',
+      type:'civil', as:'기각',
+      action:'사용성 귀책입니다.\n→ 유상 처리 안내',
+      checks:['파손 형태·경위 사진 촬영','고객 과실 사실 서면 기록']},
+     {label:'아니오 — 정상 사용 범위',
+      type:'product', as:'의무',
+      action:'정상 사용 범위 내 파손. 제품성 귀책입니다.\n→ 보증기간 내 무상 교체',
+      checks:['파손 부품 사진 촬영','정상 사용 근거 확인','보증기간 확인 후 처리']}
+   ]}
+],
+
+// ════════════════════════════════
+// 마루 (합판·MDF·SPC마루 공통)
+// ════════════════════════════════
+'floor_wood_이색 / 이광':[
+  {q:'동일 LOT(롯트)로 시공되었나요?',
+   hint:'제품 박스·라벨의 LOT 번호 확인',
+   warranty:'1년',
+   answers:[
+     {label:'아니오 — LOT 다름',
+      type:'construction', as:'기각',
+      action:'LOT 혼재 시공 확인. 시공성 귀책입니다.\n→ 시방 미준수 안내',
+      checks:['혼재 LOT 번호 사진 촬영','시공 범위 확인']},
+     {label:'예 — 동일 LOT',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'제품 시공 방향(정/역방향)을 준수했나요?',
+   hint:'시공방향 안내선 및 정방향·역방향 확인',
+   answers:[
+     {label:'아니오 — 방향 미준수',
+      type:'construction', as:'기각',
+      action:'시공 방향 미준수로 인한 난반사 이색. 시공성 귀책입니다.',
+      checks:['시공 방향 사진 촬영','방향선 준수 여부 확인']},
+     {label:'예 — 방향 준수',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'조명·채광·샘플북 차이에 의한 감성적 불만인가요?',
+   hint:'계약 샘플·카탈로그와 현장 비교',
+   answers:[
+     {label:'예 — 조명·감성 차이',
+      type:'civil', as:'기각',
+      action:'민원성 이색입니다.\n→ 계약 샘플·카탈로그 대조 결과 서면 제공\n→ 조명 조건 차이 특성 안내',
+      checks:['계약 샘플·카탈로그 지참','현장 조명 조건 비교 사진 촬영']},
+     {label:'아니오 — 동일 LOT 실제 이색',
+      type:'product', as:'의무',
+      action:'동일 LOT 이색 발생. 제품성 귀책입니다.\n→ LOT 번호 기록 후 품질팀 공유\n→ 교체 진행',
+      checks:['이색 부위 사진 촬영','LOT 번호 기록','품질팀 공유 후 교체 발주']}
+   ]}
+],
+
+'floor_wood_변색':[
+  {q:'강한 용제(아세톤·시너·락스 등)나 애완동물 배변 접촉이 있었나요?',
+   hint:'청소·오염 이력 고객 진술 확인',
+   answers:[
+     {label:'예 — 화학물질·오염',
+      type:'civil', as:'기각',
+      action:'사용성 귀책입니다.\n→ 홈페이지·샘플북 유지관리 주의사항 안내',
+      checks:['변색 부위 사진 촬영','오염 물질 종류 확인','주의사항 서면 제공']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'바닥 누수 또는 함수율 초과에 의한 변색인가요?',
+   hint:'함수율 측정기로 바닥면 측정 (기준: 8% 이하)',
+   answers:[
+     {label:'예 — 습·누수 원인',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 바닥 함수율 측정 결과 사진 제공',
+      checks:['함수율 측정기로 측정 (측정값 기록)','누수 부위 사진 촬영','측정 결과 서면 제공']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'스팀청소기·전열기구 또는 놀이방매트·카펫 장기 방치에 의한 변색인가요?',
+   hint:'고온 기구 사용 이력 또는 PVC 소재 방치 이력 확인',
+   answers:[
+     {label:'예 — 고온·PVC 방치',
+      type:'civil', as:'기각',
+      action:'사용성 귀책입니다.\n→ 홈페이지·샘플북 주의사항 안내',
+      checks:['변색 부위 사진 촬영','사용 이력 고객 진술 확인','주의사항 서면 제공']},
+     {label:'아니오 — 직사광선·조명 변색 (1년 이내)',
+      type:'product', as:'의무',
+      action:'직사광선·조명에 의한 제품성 변색입니다.\n→ LOT 기록 후 품질팀 공유\n→ 교체 진행',
+      checks:['변색 부위·방향 사진 촬영','LOT 번호 기록','동일 LOT 타 제품 확인']}
+   ]}
+],
+
+'floor_wood_들뜸 / 웨이브':[
+  {q:'시공면 평활도가 불량한가요?',
+   hint:'수평자·레이저로 측정 — 기준: 2m에 3mm 이내',
+   answers:[
+     {label:'예 — 평활도 불량',
+      type:'field', as:'기각',
+      action:'바닥면 평활도 불량. 현장성 귀책입니다.\n→ 평활도 측정값 사진 제공',
+      checks:['평활도 측정값 기록 (수평자·레이저)','불량 위치 사진 촬영','인테리어점·시공업체 보수 안내']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'바닥 함수율이 기준치를 초과했나요?',
+   hint:'함수율 측정기 사용 — 기준: 8% 이하',
+   answers:[
+     {label:'예 — 함수율 초과',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 함수율 측정 결과 사진 제공',
+      checks:['함수율 측정값 기록 (측정기 사진)','결로·누수 흔적 확인','측정 결과 서면 제공']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'당사 지정 접착제를 사용했나요?',
+   hint:'시공 출하내역에서 접착제 종류 확인',
+   answers:[
+     {label:'아니오 — 비지정 접착제',
+      type:'construction', as:'기각',
+      action:'지정 접착제 미사용. 시공성 귀책입니다.\n→ 출하내역 증빙 확보',
+      checks:['출하내역 접착제 종류 확인','비지정 접착제 사용 사실 기록']},
+     {label:'예 — 지정 접착제 사용',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'중첩 시공(덧방) 또는 안착 작업 미흡인가요?',
+   hint:'기존 제품 위 중첩 시공 여부 및 롤러 압착 여부 확인',
+   answers:[
+     {label:'예 — 덧방·안착 불량',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.\n→ 시방 미준수 안내\n→ 롤러 대여 후 재압착 지원',
+      checks:['덧방 사실 사진 촬영','안착 작업 여부 확인','롤러 압착 지원 여부 결정']},
+     {label:'아니오 — 제품 구조 불량 의심',
+      type:'product', as:'의무',
+      action:'제품성 불량 추정입니다.\n→ LOT 번호 기록 후 품질팀 공유\n→ 교체 진행',
+      checks:['들뜸 위치·범위 사진 촬영','LOT 번호 기록','동일 LOT 타 현장 확인 요청']}
+   ]}
+],
+
+'floor_wood_이음매 / 이음부':[
+  {q:'이음매 부위 겹침·재단면 불량·단차가 있나요?',
+   hint:'이음매 간격·직각도 육안 및 실측 확인',
+   answers:[
+     {label:'예 — 시공 불량',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.\n→ 시공사 재처리 요청',
+      checks:['이음매 불량 부위 사진 촬영','재단면 직각도 측정','시공사 재처리 요청']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'직각도 불량으로 인한 이음매·줄눈 간격 불일치인가요?',
+   hint:'제품 직각도 실측 — KS 기준 초과 여부',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 직각도 기준 초과',
+      type:'product', as:'의무',
+      action:'제품성 직각도 불량입니다.\n→ LOT 기록 후 교체 진행',
+      checks:['직각도 측정값 기록','LOT 번호 기록','교체 발주']},
+     {label:'아니오 — 외력·사용 중 터짐',
+      type:'civil', as:'기각',
+      action:'외력에 의한 이음매 손상. 사용성 귀책입니다.',
+      checks:['손상 위치 사진 촬영','외력 흔적 확인','유상 처리 안내']}
+   ]}
+],
+
+'floor_wood_박리':[
+  {q:'합판과 필름 층간 박리가 확인되나요?',
+   hint:'층간 분리 여부 (박리 소리·들뜸 확인)',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 층간 박리',
+      type:'product', as:'의무',
+      action:'제품성 박리입니다.\n→ LOT 기록 후 교체 진행',
+      checks:['박리 부위 사진 촬영','LOT 번호 기록','동일 LOT 확인 후 교체 발주']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'바닥 습·누수 또는 평활도 불량이 원인인가요?',
+   hint:'함수율 측정 및 평활도 확인',
+   answers:[
+     {label:'예 — 습·평활도 불량',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 함수율·평활도 측정 결과 제공',
+      checks:['함수율 측정값 기록','평활도 불량 위치 사진 촬영','측정 결과 서면 제공']},
+     {label:'아니오',
+      type:'product', as:'의무',
+      action:'원인 불명확. 제품성 추정입니다.\n→ LOT 기록 후 품질팀 공유',
+      checks:['박리 범위 사진 촬영','LOT 번호 기록','품질팀 공유 후 처리 방향 결정']}
+   ]}
+],
+
+'floor_wood_운송 중 파손':[
+  {q:'제품 입고 시 포장 상태에서 파손·변형이 확인되었나요?',
+   hint:'입고 시점 사진 또는 배송업체 확인',
+   answers:[
+     {label:'예 — 입고 시 파손',
+      type:'product', as:'의무',
+      action:'제품성 파손입니다.\n→ 무상 교체 진행',
+      checks:['입고 시 사진 확보','파손 수량 및 범위 기록','교체 발주']},
+     {label:'아니오 — 현장 보관·적재 불량',
+      type:'field', as:'기각',
+      action:'현장 보관·적재 불량. 현장성 귀책입니다.',
+      checks:['보관 상태 사진 촬영','눌림 형태·간격 파악','보관 불량 원인 설명']}
+   ]}
+],
+
+// ════════════════════════════════
+// 장판 고유 항목
+// ════════════════════════════════
+'floor_viny_인쇄 불량':[
+  {q:'표면 인쇄패턴에 오염·기포·이물질 혼입이 있나요?',
+   hint:'인접 정상 제품과 비교',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 제조 불량',
+      type:'product', as:'의무',
+      action:'제품성 인쇄 불량입니다.\n→ LOT 기록 후 교체 진행',
+      checks:['불량 위치 사진 촬영','인접 정상 제품과 비교 사진','LOT 번호 기록']},
+     {label:'아니오 — 시공 중 표면 손상',
+      type:'construction', as:'기각',
+      action:'시공 중 발생한 표면 손상. 시공성 귀책입니다.',
+      checks:['손상 위치·형태 사진 촬영','재단 자국·찍힘 여부 확인','시공사 귀책 서면 기록']}
+   ]}
+],
+
+'floor_viny_단차':[
+  {q:'시공면 평활도가 불량한가요?',
+   hint:'수평자·레이저 측정',
+   answers:[
+     {label:'예 — 평활도 불량',
+      type:'field', as:'기각',
+      action:'바닥면 평활도 불량. 현장성 귀책입니다.',
+      checks:['평활도 측정값 기록','불량 위치 사진 촬영','인테리어점 보수 안내']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'제품 간 높이 차이가 KS 기준치를 초과했나요?',
+   hint:'인접 제품 간 높이 차이 실측',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 기준치 초과',
+      type:'product', as:'의무',
+      action:'제품성 단차입니다.\n→ LOT 기록 후 교체 진행',
+      checks:['단차 측정값 기록 (mm)','LOT 번호 기록','교체 발주']},
+     {label:'아니오 — 접착 불균일',
+      type:'construction', as:'기각',
+      action:'접착제 도포 불균일. 시공성 귀책입니다.',
+      checks:['접착 상태 확인 (떼어보기)','도포 불균일 사진 촬영','시공사 재처리 요청']}
+   ]}
+],
+
+// ════════════════════════════════
+// 중문
+// ════════════════════════════════
+'jungmun_개폐 불량':[
+  {q:'보증기간(2년) 이내인가요?',
+   hint:'설치 계약서·Q-TOS로 설치 시점 확인',
+   warranty:'중문 전반 2년',
+   answers:[
+     {label:'아니오 — 보증기간 초과',
+      type:'civil', as:'기각',
+      action:'보증기간 경과. 사용성 귀책입니다.\n→ 유상 처리 안내\n※ 민원성 판단 시 1회 한정 무상 협의 가능',
+      checks:['설치 시점 확인','보증기간 초과 사실 안내','유상 처리 비용 안내']},
+     {label:'예 — 보증기간 이내',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'하드웨어 와이어가 끊어졌나요?',
+   hint:'와이어 절단 여부 육안 확인',
+   answers:[
+     {label:'예 — 와이어 끊어짐',
+      type:'product', as:'의무',
+      action:'와이어 불량. 제품성 귀책입니다.\n→ 와이어 교체 (2년 이내 무상)',
+      checks:['와이어 절단 위치 사진 촬영','교체 부품 발주']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'롤러 불량인가요?',
+   hint:'롤러 구름성·레일 상태 확인',
+   answers:[
+     {label:'예 — 롤러 불량',
+      type:'product', as:'의무',
+      action:'롤러 불량. 제품성 귀책입니다.\n→ 롤러 교체 (2년 이내 무상)',
+      checks:['롤러 상태 사진 촬영','레일 이물질 여부 확인','교체 부품 발주']},
+     {label:'아니오',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'댐퍼·댐퍼핀·스토퍼 불량인가요?',
+   hint:'댐퍼 동작 및 댐퍼핀 밴딩 확인',
+   answers:[
+     {label:'예 — 댐퍼 불량',
+      type:'product', as:'의무',
+      action:'댐퍼 불량. 제품성 귀책입니다.\n→ 댐퍼 교체 (2년 이내 무상)',
+      checks:['댐퍼 동작 상태 사진 촬영','댐퍼핀 밴딩 여부 확인','교체 부품 발주']},
+     {label:'아니오 — 이물질·청소 불량',
+      type:'civil', as:'기각',
+      action:'이물질·청소 불량에 의한 사용성 하자입니다.\n→ 청소 방법 안내 (WD 도포 후 마른걸레)',
+      checks:['레일·롤러 이물질 사진 촬영','청소 방법 안내 서면 제공']}
+   ]}
+],
+
+'jungmun_수평 / 수직 불량':[
+  {q:'현장 바닥 쳐짐으로 인한 수평·수직 불량인가요?',
+   hint:'바닥 상태·레일 수평 확인',
+   answers:[
+     {label:'예 — 바닥 쳐짐',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.\n→ 본사 판매 건: 시공팀 이관\n→ 대리점 판매 건: 대리점 문의',
+      checks:['바닥 쳐짐 측정값 기록','문틀·레일 수평 확인 사진 촬영']},
+     {label:'아니오 — 시공 조정 불량',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.\n→ 고임 작업·조시 재조정 요청',
+      checks:['레일 수평 측정값 기록','재조정 범위 확인','시공팀 재조정 요청']}
+   ]}
+],
+
+'jungmun_유리 파손':[
+  {q:'파손 시작점에 나비형태(황화니켈 자파 패턴)가 있나요?',
+   hint:'파손 시작점 형태 — 나비형 = 제품성 자파',
+   warranty:'유리 2년',
+   answers:[
+     {label:'예 — 나비형 자파',
+      type:'product', as:'의무',
+      action:'황화니켈 압축응력에 의한 자파. 제품성 귀책입니다.\n→ 무상 교체 진행',
+      checks:['파손 패턴 사진 촬영 (나비형 확인)','LOT 번호 기록','교체 발주']},
+     {label:'아니오 — 방사형 충격 파손',
+      type:'civil', as:'기각',
+      action:'충격·외력에 의한 파손. 사용성 귀책입니다.\n→ 유상 처리 안내',
+      checks:['파손 패턴 사진 촬영 (방사형 확인)','충격 흔적 확인','유상 처리 비용 안내']}
+   ]}
+],
+
+'jungmun_부자재 불량 (핸들)':[
+  {q:'보증기간(2년) 이내인가요?',
+   hint:'설치 시점 확인',
+   warranty:'핸들 2년',
+   answers:[
+     {label:'예 — 보증기간 이내',
+      type:'product', as:'의무',
+      action:'보증기간 내 도장 탈락. 제품성 귀책입니다.\n→ 핸들 교체 (2년 이내 무상)',
+      checks:['도장 탈락 부위 사진 촬영','탈락 형태 확인 (마모/충격 구분)','교체 부품 발주']},
+     {label:'아니오 — 보증기간 초과',
+      type:'civil', as:'기각',
+      action:'경년 변화에 의한 도장 탈락. 사용성 귀책입니다.\n→ 유상 처리 안내\n※ 1회 한정 무상 협의 가능',
+      checks:['설치 시점 확인','보증기간 초과 사실 안내','유상 처리 비용 안내']}
+   ]}
+],
+
+// ════════════════════════════════
+// 벽지 (큐피드·큐티에)
+// ════════════════════════════════
+'wallpaper_기포 / 들뜸':[
+  {q:'풀 도포 불량 또는 건조 전 습기 유입이 확인되나요?',
+   hint:'풀 도포 상태·환기 여부·건조 기간 확인',
+   answers:[
+     {label:'예 — 시공 불량',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.\n→ 시공사 재시공 요청',
+      checks:['기포 위치 사진 촬영','풀 도포 상태 확인','시공사 재처리 요청']},
+     {label:'아니오 — 바닥·벽 습기',
+      type:'field', as:'기각',
+      action:'현장 습기에 의한 현장성 하자입니다.',
+      checks:['기포 위치 사진 촬영','벽면 함수율 측정','습기 원인 확인']}
+   ]}
+],
+
+'wallpaper_변색 / 인쇄 불량':[
+  {q:'제조 불량(인쇄 번짐·누락·이물질)이 확인되나요?',
+   hint:'동일 LOT 비교',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 제조 불량',
+      type:'product', as:'의무',
+      action:'제품성 귀책입니다.\n→ LOT 기록 후 교체 진행',
+      checks:['불량 위치 사진 촬영','LOT 번호 기록','교체 발주']},
+     {label:'아니오 — 화학물질·UV 노출',
+      type:'civil', as:'기각',
+      action:'사용성 귀책입니다.\n→ 홈페이지·샘플북 주의사항 안내',
+      checks:['변색 위치 사진 촬영','사용 이력 확인','주의사항 서면 안내']}
+   ]}
+],
+
+'wallpaper_찢김 / 훼손':[
+  {q:'외력에 의한 훼손인가요?',
+   hint:'시공 완료 사진과 현재 상태 비교',
+   answers:[
+     {label:'예 — 외력 훼손',
+      type:'civil', as:'기각',
+      action:'사용성 귀책입니다.\n→ 유상 교체 안내',
+      checks:['훼손 위치 사진 촬영','시공 완료 사진 비교','유상 처리 비용 안내']},
+     {label:'아니오 — 시공 불량',
+      type:'construction', as:'기각',
+      action:'시공 불량 추정. 시공성 귀책입니다.',
+      checks:['훼손 위치 사진 촬영','시공사 귀책 확인','재처리 요청']}
+   ]}
+],
+
+// ════════════════════════════════
+// 인테리어스톤
+// ════════════════════════════════
+'stone_이색 / 이광':[
+  {q:'동일 LOT로 시공되었나요?',
+   hint:'LOT 번호 확인',
+   warranty:'1년',
+   answers:[
+     {label:'아니오 — LOT 다름',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.',
+      checks:['LOT 혼재 사진 촬영','시방 미준수 안내']},
+     {label:'예 — 동일 LOT',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'광택도가 기준치 이내이고 샘플과 일치하나요?',
+   hint:'유광 45↑, 무광 25↓ (Horiba IG-320 측정)',
+   answers:[
+     {label:'예 — 기준 이내 (감성 불만)',
+      type:'civil', as:'기각',
+      action:'민원성입니다.\n→ 공장 공문 발송\n→ 공장 전문가 현장 방문 설명',
+      checks:['광택도 측정값 기록','샘플과 비교 사진 촬영','공장 공문 발송 요청']},
+     {label:'아니오 — 동일 LOT 실제 이색',
+      type:'product', as:'의무',
+      action:'제품성 이색입니다.\n→ 교체 진행',
+      checks:['이색 부위 사진 촬영','LOT 번호 기록','교체 발주']}
+   ]}
+],
+
+'stone_단차':[
+  {q:'하부장 수평도·지지력 문제인가요?',
+   hint:'하부장 수평도 기준: 3m에 1.0mm 이내, 100kg/m² 이상 지지',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 하부장 불량',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 대리점·주방사 연결',
+      checks:['하부장 수평도 측정값 기록','쳐짐 부위 사진 촬영','대리점·주방사 연결']},
+     {label:'아니오 — 제품 두께 불량',
+      type:'product', as:'의무',
+      action:'제품성 두께 불량입니다.\n→ 교체 진행',
+      checks:['두께 실측값 기록 (20T: ±1mm 기준)','LOT 번호 기록','교체 발주']}
+   ]}
+],
+
+'stone_표면 불량':[
+  {q:'핀홀·이물질·블로치가 품질 기준을 초과했나요?',
+   hint:'핀홀: 1.5~2mm 5개 이하 / 이물질(단색): 2.5~3mm 3개 이하 / 블로치(단색): 5~10mm 6개 이하',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 기준 초과',
+      type:'product', as:'의무',
+      action:'제품성 표면 불량입니다.\n→ 교체 진행',
+      checks:['불량 위치·크기 사진 촬영 (스케일 포함)','측정값 기록','LOT 번호 기록','교체 발주']},
+     {label:'아니오 — 패턴 오배치',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.\n→ 대리점·주방사 연결',
+      checks:['오배치 부위 사진 촬영','설계 도면과 비교','시공사 재처리 요청']}
+   ]}
+],
+
+'stone_탈색 / 변색':[
+  {q:'열원(조리기구·온수파이프) 근접 부위 변색인가요?',
+   hint:'이격거리 기준: 가스쿡탑 단면 최소 3mm + 알루미늄 테이프',
+   answers:[
+     {label:'예 — 열원 근접',
+      type:'field', as:'기각',
+      action:'이격거리 미준수. 현장성 귀책입니다.\n→ 대리점·주방사 연결',
+      checks:['열원 위치·이격거리 사진 촬영','이격거리 측정값 기록','대리점·주방사 연결']},
+     {label:'아니오 — 화학물질·UV',
+      type:'field', as:'기각',
+      action:'사용자 과실 또는 외장 사용 금지 제품. 현장성 귀책입니다.',
+      checks:['변색 위치 사진 촬영','사용 이력 확인','귀책 서면 안내']}
+   ]}
+],
+
+'stone_크랙 (균열)':[
+  {q:'하부장 수평도·지지력 문제인가요?',
+   hint:'하부장: 100kg/m² 이상 설계 / 조인트 보강: 싱크볼·쿡탑 70mm 이내 필수',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 하부장 불량',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 대리점·주방사 연결',
+      checks:['균열 위치 사진 촬영','하부장 상태 확인','대리점·주방사 연결']},
+     {label:'아니오 — 제품 불량',
+      type:'product', as:'의무',
+      action:'제품성 불량입니다.\n→ 교체 진행',
+      checks:['균열 위치 사진 촬영','LOT 번호 기록','교체 발주']}
+   ]}
+],
+
+// ════════════════════════════════
+// 장식자재 (인테리어필름·데코시트)
+// ════════════════════════════════
+'deco_점착 하자':[
+  {q:'시공 매뉴얼(상온 보관, 기온 관리, 열풍기 사용)을 준수했나요?',
+   hint:'시공 당일 기온·보관 이력 확인',
+   warranty:'1년',
+   answers:[
+     {label:'아니오 — 시방 미준수',
+      type:'field', as:'기각',
+      action:'시공성·현장성 귀책입니다.\n→ 시방 미준수 안내',
+      checks:['시공 당일 기온 기록 확인','보관 이력 확인','시방 미준수 사실 기록']},
+     {label:'예 — 시방 준수',
+      type:'product', as:'의무',
+      action:'제품성 점착 불량 추정입니다.\n→ 동일 LOT 점착 추가 확인 후 처리',
+      checks:['점착 불량 위치 사진 촬영','동일 LOT 추가 확인','LOT 번호 기록']}
+   ]}
+],
+
+'deco_터널링':[
+  {q:'이형지 불량 또는 제품 탄성에 의한 터널링인가요?',
+   hint:'이형지 들뜸 여부 확인',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 제품 탄성·이형지 불량',
+      type:'product', as:'의무',
+      action:'제품성 귀책입니다.\n→ 제조사 리클레임 처리\n→ 교체 진행',
+      checks:['터널링 위치 사진 촬영','LOT 번호 기록','제조사 리클레임 접수']},
+     {label:'아니오 — 눌림·보관 과실',
+      type:'product', as:'의무',
+      action:'생산·보관 중 눌림. 제품성 귀책입니다.\n→ 교체 진행',
+      checks:['눌림 위치 사진 촬영','LOT 번호 기록','교체 발주']}
+   ]}
+],
+
+'deco_외관 하자':[
+  {q:'시공 전 발생한 불량인가요?',
+   hint:'포장 개봉 직후 상태 확인',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 시공 전 불량',
+      type:'process', as:'의무',
+      action:'가공성 귀책입니다.\n→ 제조사 리클레임 처리',
+      checks:['불량 위치 사진 촬영','LOT 번호 기록','제조사 리클레임 접수']},
+     {label:'아니오 — 화학물질·UV',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 주의사항 서면 안내',
+      checks:['변색 위치 사진 촬영','사용 이력 확인','주의사항 서면 제공']}
+   ]}
+],
+
+'deco_파손':[
+  {q:'재단 시공 미흡에 의한 파손인가요?',
+   hint:'제품 경도·보관 상태 확인',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 시공 미흡',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 시방 미준수 안내',
+      checks:['파손 위치 사진 촬영','재단 상태 확인','시방 미준수 사실 기록']},
+     {label:'아니오 — 제품 경도 불량',
+      type:'field', as:'기각',
+      action:'현장성 추정입니다.\n→ 마스터·현장샘플로 추가 확인',
+      checks:['파손 위치 사진 촬영','마스터 샘플 비교 TEST','LOT 번호 기록']}
+   ]}
+],
+
+'deco_수축':[
+  {q:'피착면 부착 후 수축이 발생했나요?',
+   hint:'동일 LOT 수축 여부 확인',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 부착 후 수축',
+      type:'product', as:'의무',
+      action:'제품성 귀책입니다.\n→ 제조사 리클레임 처리',
+      checks:['수축 위치 사진 촬영','LOT 번호 기록','제조사 리클레임 접수']},
+     {label:'아니오 — 시공 전 이형지 노출',
+      type:'civil', as:'기각',
+      action:'물적 특성. 정상 시공 가능합니다.\n→ 정상 시공 방법 안내',
+      checks:['이형지 노출 상태 사진 촬영','정상 시공 방법 안내']}
+   ]}
+],
+
+'deco_이색':[
+  {q:'동일 LOT로 시공되었나요?',
+   hint:'LOT 번호 확인',
+   answers:[
+     {label:'아니오 — LOT 다름',
+      type:'construction', as:'기각',
+      action:'시공성 귀책입니다.\n→ 시방 미준수 안내',
+      checks:['LOT 혼재 사진 촬영','시방 미준수 사실 기록']},
+     {label:'예 — 동일 LOT',
+      type:null, as:null, action:'', checks:[]}
+   ]},
+  {q:'조명·샘플북 차이에 의한 감성적 불만인가요?',
+   hint:'색차값 SPEC 확인',
+   answers:[
+     {label:'예 — 감성 불만',
+      type:'civil', as:'기각',
+      action:'민원성입니다.\n→ 계약 샘플 대조 서면 제공',
+      checks:['계약 샘플 지참','현장 조명 조건 비교 사진 촬영','서면 제공']},
+     {label:'아니오 — 실제 이색',
+      type:'product', as:'의무',
+      action:'제품성 이색입니다.\n→ LOT 기록 후 교체 진행',
+      checks:['이색 부위 사진 촬영','LOT 번호 기록','교체 발주']}
+   ]}
+],
+
+'deco_엠보스 풀림':[
+  {q:'소비자 사용 이후 발생했나요?',
+   hint:'고온 기구 사용 이력 확인',
+   answers:[
+     {label:'아니오 — 고온에 의한 소멸',
+      type:'product', as:'의무',
+      action:'제품성 귀책입니다.\n→ 교체 진행',
+      checks:['엠보스 소멸 위치 사진 촬영','LOT 번호 기록','교체 발주']},
+     {label:'예 — 사용자 과실',
+      type:'civil', as:'기각',
+      action:'사용성 귀책입니다.\n→ 주의사항 안내',
+      checks:['소멸 위치 사진 촬영','고온 기구 사용 이력 확인','주의사항 서면 안내']}
+   ]}
+],
+
+'deco_평활도 불량':[
+  {q:'세워 보관 또는 야외 보관을 했나요?',
+   hint:'보관 이력 확인',
+   answers:[
+     {label:'예 — 보관 불량',
+      type:'field', as:'기각',
+      action:'현장성 귀책입니다.\n→ 보관 방법 안내',
+      checks:['보관 상태 사진 촬영','보관 불량 사실 기록','보관 방법 서면 안내']},
+     {label:'아니오 — 제조 LOT 6개월 이하',
+      type:'product', as:'의무',
+      action:'제품성·온도 변화 변형입니다.\n→ 제조사 5 / 당사 5 귀책\n→ 어닐링 작업 후 개선 물량 활용',
+      checks:['변형 상태 사진 촬영','LOT 번호·제조일 확인','어닐링 처리 가능 여부 확인']}
+   ]}
+],
+
+'deco_보호랩 불량':[
+  {q:'동일 LOT에서 동일 증상이 발생했나요?',
+   hint:'점착제 전이·강도 문제 확인',
+   warranty:'1년',
+   answers:[
+     {label:'예 — 동일 LOT 불량',
+      type:'product', as:'의무',
+      action:'제품성 귀책입니다.\n→ LOT 기록 후 교체 진행',
+      checks:['불량 위치 사진 촬영','동일 LOT 전수 확인','LOT 번호 기록','교체 발주']},
+     {label:'아니오',
+      type:'product', as:'의무',
+      action:'제품성 추정입니다.\n→ 추가 확인 후 처리',
+      checks:['불량 위치 사진 촬영','LOT 번호 기록','품질팀 공유']}
+   ]}
+]
+};
+
+// 장판·타일 공통 항목 복사
+var copyKeys={
+  'floor_viny_이색 / 이광':'floor_wood_이색 / 이광',
+  'floor_viny_변색':'floor_wood_변색',
+  'floor_viny_들뜸 / 웨이브':'floor_wood_들뜸 / 웨이브',
+  'floor_viny_이음매 / 이음부':'floor_wood_이음매 / 이음부',
+  'floor_viny_박리':'floor_wood_박리',
+  'floor_viny_운송 중 파손':'floor_wood_운송 중 파손',
+  'tile_이색 / 이광':'floor_wood_이색 / 이광',
+  'tile_변색':'floor_wood_변색',
+  'tile_인쇄 불량':'floor_viny_인쇄 불량',
+  'tile_단차':'floor_viny_단차',
+  'tile_들뜸 / 웨이브':'floor_wood_들뜸 / 웨이브',
+  'tile_이음매 / 이음부':'floor_wood_이음매 / 이음부'
+};
+Object.keys(copyKeys).forEach(function(k){CHECKS[k]=CHECKS[copyKeys[k]];});
+
+// ── 상태 ──
+var curP=null, curS=null, curChecks=[], answers=[], resultData=null;
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+// 품목 그리드 생성
+var g=document.getElementById('pgrid');
+PRODUCTS.forEach(function(p){
+  var d=document.createElement('div'); d.className='pcard';
+  d.innerHTML='<div class="p-emoji">'+p.e+'</div><div class="p-name">'+p.n+'</div><div class="p-sub">'+p.s+'</div>';
+  d.onclick=(function(pk){return function(){curP=pk;buildS2(pk);go('s2');};})(p.k);
+  g.appendChild(d);
+});
+
+function buildS2(pk){
+  var pr=PRODUCTS.filter(function(p){return p.k===pk;})[0];
+  document.getElementById('s2lbl').textContent='Step 2 · '+pr.n;
+  var el=document.getElementById('s2list'); el.innerHTML='';
+  SYMPTOMS[pk].forEach(function(sym){
+    var d=document.createElement('div'); d.className='opt';
+    d.innerHTML='<span class="opt-icon">'+sym.ico+'</span><div><div class="opt-text">'+sym.txt+'</div><div class="opt-sub">'+sym.sub+'</div></div>';
+    d.onclick=(function(s){return function(){curS=s;buildS3(pk,s);};})(sym.txt);
+    el.appendChild(d);
+  });
+}
+
+function buildS3(pk,sym){
+  var key=pk+'_'+sym;
+  var checks=CHECKS[key];
+  curChecks=checks||[];
+  answers=new Array(curChecks.length).fill(null);
+  document.getElementById('s3title').textContent=sym+' — 점검 항목을 순서대로 확인하세요';
+  document.getElementById('errmsg').style.display='none';
+  var el=document.getElementById('s3list'); el.innerHTML='';
+  if(!curChecks.length){
+    el.innerHTML='<div style="padding:16px;color:#6b7280;font-size:14px;text-align:center;">해당 항목은 현장 확인 후 품질전략팀에 문의하세요.</div>';
+    go('s3'); return;
+  }
+  curChecks.forEach(function(ck,i){
+    var sec=document.createElement('div'); sec.className='ck-sec'; sec.id='q'+i;
+    var w=ck.warranty?'<span class="ck-warrant">보증 '+ck.warranty+'</span>':'';
+    var h=ck.hint?'<div class="ck-hint">📌 '+ck.hint+'</div>':'';
+    sec.innerHTML='<div class="ck-title" id="qt'+i+'">Q'+(i+1)+'. '+ck.q+w+h+'</div>';
+    var yn=document.createElement('div'); yn.className='yn-row';
+    ck.answers.forEach(function(ans,j){
+      var btn=document.createElement('div'); btn.className='yn-btn';
+      btn.innerHTML=ans.label;
+      btn.onclick=(function(ii,jj,b){return function(){
+        answers[ii]=jj;
+        b.parentNode.querySelectorAll('.yn-btn').forEach(function(bb){bb.classList.remove('sel-y','sel-n');});
+        b.classList.add(jj===0?'sel-y':'sel-n');
+        document.getElementById('qt'+ii).classList.remove('unanswered');
+      };})(i,j,btn);
+      yn.appendChild(btn);
+    });
+    sec.appendChild(yn); el.appendChild(sec);
+  });
+  go('s3');
+}
+
+function judgeResult(){
+  // 모든 질문 순서대로 통과 — type이 null이면 다음 질문으로 진행, type이 있으면 결과
+  var firstUnanswered=-1;
+  var finalType=null, finalAs='', finalAction='', finalChecks=[], finalWarranty='', finalQ='';
+
+  for(var i=0;i<curChecks.length;i++){
+    if(answers[i]===null){
+      if(firstUnanswered===-1) firstUnanswered=i;
+      // 이전 답변으로 이미 결과가 나왔으면 OK
+      continue;
+    }
+    var ans=curChecks[i].answers[answers[i]];
+    if(ans.type){
+      finalType=ans.type;
+      finalAs=ans.as;
+      finalAction=ans.action;
+      finalChecks=ans.checks||[];
+      finalWarranty=curChecks[i].warranty||'';
+      finalQ='Q'+(i+1)+'. '+curChecks[i].q;
+      break;
+    }
+    // type=null이면 다음 질문으로
+  }
+
+  // 미답변 항목 표시
+  if(firstUnanswered!==-1 && !finalType){
+    document.getElementById('errmsg').style.display='block';
+    document.getElementById('qt'+firstUnanswered).classList.add('unanswered');
+    document.getElementById('q'+firstUnanswered).scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  if(!finalType){
+    finalType='field'; finalAs='보류';
+    finalAction='복합 원인으로 판단 보류입니다.\n→ 유관부서 2차 현장 동행실사 후 결정';
+    finalChecks=['판정 결과 품질전략팀 보고','유관부서 2차 현장 동행 일정 조율','현장 사진 자료 정리 후 공유'];
+  }
+
+  var m=TM[finalType];
+  var pr=PRODUCTS.filter(function(p){return p.k===curP;})[0];
+  resultData={product:pr.n, symptom:curS, type:m.lbl, as:finalAs, action:finalAction, checks:finalChecks, warranty:finalWarranty};
+
+  var wBox=finalWarranty?'<div class="warranty-box">📋 보증기간 정보: '+finalWarranty+(finalAs==='의무'?' → 무상 처리 대상':finalAs==='기각'?' → AS 기각':' → 확인 필요')+'</div>':'';
+  var chkHtml=finalChecks.map(function(c){return'<div class="chk-item"><span style="flex-shrink:0;color:#2BA99B">✓</span><span>'+c+'</span></div>';}).join('');
+  var actionHtml=finalAction.replace(/\n/g,'<br>');
+
+  document.getElementById('s4body').innerHTML=
+    '<div class="result-box" style="background:'+m.bg+';border-color:'+m.color+'">'
+    +'<div style="font-size:12px;color:#6b7280;margin-bottom:8px">'+pr.n+' · '+curS+'</div>'
+    +'<div class="type-badge" style="background:'+m.color+'">'+m.ico+' '+m.lbl+'</div>'
+    +'<div class="verdict-chip" style="background:'+m.vbg+';color:'+m.vco+'">'+m.verd+'</div>'
+    +wBox
+    +'<div class="r-title">⚡ 처리 방향</div>'
+    +'<div class="r-action">'+actionHtml+'</div>'
+    +'<div class="r-title">📋 현장 핵심 점검사항</div>'
+    +'<div class="chk-list">'+chkHtml+'</div>'
+    +'</div>';
+  go('s4');
+}
+
+function copyResult(){
+  if(!resultData) return;
+  var txt='[현대L&C 하자판정 결과]\n';
+  txt+='품목: '+resultData.product+'\n';
+  txt+='증상: '+resultData.symptom+'\n';
+  txt+='하자유형: '+resultData.type+'\n';
+  txt+='AS 판정: '+resultData.as+'\n';
+  if(resultData.warranty) txt+='보증기간: '+resultData.warranty+'\n';
+  txt+='\n[처리 방향]\n'+resultData.action.replace(/<br>/g,'\n')+'\n';
+  txt+='\n[현장 점검사항]\n'+resultData.checks.map(function(c,i){return(i+1)+'. '+c;}).join('\n');
+  txt+='\n\n※ 본 결과는 현장 참고용이며 최종 판단은 품질전략팀 확인이 필요합니다.';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(function(){alert('결과가 복사되었습니다.\n카카오톡·문자에 붙여넣기 하세요.');});
+  } else {
+    var ta=document.createElement('textarea'); ta.value=txt;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); alert('결과가 복사되었습니다.');
+  }
+}
+</script>
+</body>
+</html>
